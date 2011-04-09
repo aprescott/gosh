@@ -1,0 +1,76 @@
+#!/usr/bin/env ruby
+
+require "tempfile"
+require "shellwords"
+require "digest/sha2"
+
+EDITOR = ENV["EDITOR"] || "vi"
+SHELL  = ENV["SHELL"]  || "sh"
+
+def usage
+  warn <<-EOS.strip
+gosh is security theater for piped shell scripts
+usage: curl <url> | #$0
+       curl <url> | #$0 -d <digest>  # extra-secure SHA512 digest mode
+  EOS
+  exit -1
+end
+
+def confirm(script_source)
+  tempfile = Tempfile.new("FRIGHTENINGLY_DANGEROUS_SCRIPT")
+  tempfile.write <<-EOS
+
+# --- PLACE YOUR ANSWER ABOVE THIS LINE ---------------------
+#
+#  Do you want to run the following script?
+#
+#  To run, enter YES above, then save this file and close it.
+#  If you do not want to run the script, close this file.
+#
+# -----------------------------------------------------------
+
+  EOS
+
+  tempfile.write script_source
+  tempfile.close
+
+  command = "#{Shellwords.escape(editor)} #{Shellwords.escape(tempfile.path)}"
+  system(command) or abort("error communicating with #{editor}")
+
+  source = IO.read(tempfile.path)
+  source[/\A(.*)^# --- PLACE YOUR ANSWER ABOVE THIS LINE/m, 1].strip
+end
+
+def perform(script)
+  tempfile = Tempfile.new("gosh-script")
+  tempfile.write script
+  tempfile.close
+  exec SHELL, tempfile.path
+end
+
+
+usage if $stdin.tty?
+script_source = $stdin.read
+
+
+if ARGV.length > 0
+  if ARGV[0] == "-d" && given_digest = ARGV[1]
+    actual_digest = Digest::SHA512.hexdigest(script_source)
+    if given_digest.downcase == actual_digest
+      perform(script_source)
+    else
+      warn "digest mismatch (actual is #{actual_digest}), aborting"
+      exit 1
+    end
+  else
+    usage
+  end
+else
+  answer = confirm(script_source)
+  if answer =~ /^yes$/i
+    perform(script_source)
+  else
+    warn "not running piped script"
+    exit 1
+  end
+end
