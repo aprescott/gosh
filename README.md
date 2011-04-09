@@ -11,7 +11,7 @@ Install it with RubyGems:
 
 Then pipe it a shell script:
 
-    $ curl https://github.com/sstephenson/gosh/blob/master/hello.sh | gosh
+    $ curl https://github.com/sstephenson/gosh/raw/master/hello.sh | gosh
 
 `gosh` will open the script in your `$EDITOR` where you can review it
 for any liquids, metals, explosives, or unattended baggage. If you
@@ -24,7 +24,7 @@ file and it won't be run.
 In addition to the interactive mode described above, `gosh` can also
 accept a SHA512 digest from the command line with the `-d` flag:
 
-    $ curl https://github.com/sstephenson/gosh/blob/master/hello.sh | gosh -d c131b1a23b0279072cfe59bca7a69fe4a41e9ad2c825ac0deacc2e836e817193b4a4f587ee4d287e960ef416718b4d2c3531716b3f343b1d129f241f79ea2c3b
+    $ curl https://github.com/sstephenson/gosh/raw/master/hello.sh | gosh -d c131b1a23b0279072cfe59bca7a69fe4a41e9ad2c825ac0deacc2e836e817193b4a4f587ee4d287e960ef416718b4d2c3531716b3f343b1d129f241f79ea2c3b
 
 If the specified digest does not match the digest of the piped script,
 `gosh` will refuse to execute it.
