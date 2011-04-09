@@ -34,8 +34,8 @@ def confirm(script_source)
   tempfile.write script_source
   tempfile.close
 
-  command = "#{Shellwords.escape(editor)} #{Shellwords.escape(tempfile.path)}"
-  system(command) or abort("error communicating with #{editor}")
+  command = "#{Shellwords.escape(EDITOR)} #{Shellwords.escape(tempfile.path)}"
+  system(command) or abort("error communicating with #{EDITOR}")
 
   source = IO.read(tempfile.path)
   source[/\A(.*)^# --- PLACE YOUR ANSWER ABOVE THIS LINE/m, 1].strip
