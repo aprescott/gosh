@@ -2,7 +2,7 @@
 
 require "tempfile"
 require "shellwords"
-require "digest/sha2"
+require "digest"
 
 EDITOR = ENV["EDITOR"] || "vi"
 SHELL  = ENV["SHELL"]  || "sh"
@@ -11,7 +11,7 @@ def usage
   warn <<-EOS.strip
 gosh is security theater for piped shell scripts
 usage: curl <url> | #$0
-       curl <url> | #$0 -d <digest>  # extra-secure SHA512 digest mode
+       curl <url> | #$0 -d <digest>  # extra-secure digest mode
   EOS
   exit -1
 end
@@ -52,10 +52,17 @@ end
 usage if $stdin.tty?
 script_source = $stdin.read
 
+DIGESTERS = {
+  32  => Digest::MD5,
+  40  => Digest::SHA1,
+  64  => Digest::SHA256,
+  128 => Digest::SHA512
+}
+DIGESTERS.default = Digest::SHA512
 
 if ARGV.length > 0
   if ARGV[0] == "-d" && given_digest = ARGV[1]
-    actual_digest = Digest::SHA512.hexdigest(script_source)
+    actual_digest = DIGESTERS[given_digest.length].hexdigest(script_source)
     if given_digest.downcase == actual_digest
       perform(script_source)
     else

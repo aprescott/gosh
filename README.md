@@ -19,15 +19,17 @@ accept the contents of the script, enter `YES` at the top of the file,
 save it, close it, and `gosh` will run it. Otherwise, just close the
 file and it won't be run.
 
-### Extra-secure SHA512 digest mode
+### Extra-secure digest mode
 
 In addition to the interactive mode described above, `gosh` can also
-accept a SHA512 digest from the command line with the `-d` flag:
+accept a hex digest (MD5, SHA1, SHA256, or SHA512) from the command line with the `-d` flag:
 
     $ curl https://github.com/sstephenson/gosh/raw/master/hello.sh | gosh -d c131b1a23b0279072cfe59bca7a69fe4a41e9ad2c825ac0deacc2e836e817193b4a4f587ee4d287e960ef416718b4d2c3531716b3f343b1d129f241f79ea2c3b
 
 If the specified digest does not match the digest of the piped script,
 `gosh` will refuse to execute it.
+
+Hashing algorithm used is automatically determined from given digest length, and defaults to SHA512 (meaning it will fail on any length not matching 32, 40, 64, 128 characters).
 
 ### License
 
